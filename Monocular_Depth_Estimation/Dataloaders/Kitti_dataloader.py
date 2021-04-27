@@ -9,14 +9,14 @@ import torch
 from PIL import Image
 from PIL import ImageOps
 from torch.utils import data
-from Kitti_dataset_util import KITTI
+from Dataloaders.Kitti_dataset_util import KITTI
 import random
 import cv2
-from transform import *
+from Dataloaders.transform import *
 from torchvision import transforms as tr
 
 class KittiDataset(data.Dataset):
-    def __init__(self, root='/vulcanscratch/koutilya/kitti', data_file='train.txt', phase='train',
+    def __init__(self, root='/home/arjun/Desktop/ProgrammingAssignments/cv/final_pa/SharinGAN/Monocular_Depth_Estimation/dataset_files/Kitti', data_file='train.txt', phase='train',
                  img_transform=None, joint_transform=None, depth_transform=None, complete_data=False):
       
         self.root = root
@@ -62,7 +62,7 @@ class KittiDataset(data.Dataset):
         return len(self.files)
 
     def read_data(self, datafiles):
-        
+        print(osp.join(self.root, datafiles['l_rgb']))
         assert osp.exists(osp.join(self.root, datafiles['l_rgb'])), "Image does not exist"
         l_rgb = Image.open(osp.join(self.root, datafiles['l_rgb'])).convert('RGB')
         w = l_rgb.size[0]

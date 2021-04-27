@@ -30,7 +30,7 @@ import Dataloaders.transform as transf
 
 class Solver():
     def __init__(self, opt):
-        self.root_dir = '.'
+        self.root_dir = '/home/arjun/Desktop/ProgrammingAssignments/cv/final_pa/SharinGAN/Monocular_Depth_Estimation'
         self.opt = opt
         self.val_string = 'test'
         if self.opt.val:

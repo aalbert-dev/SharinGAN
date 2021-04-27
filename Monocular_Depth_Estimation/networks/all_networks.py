@@ -6,6 +6,7 @@ from torch.autograd import Variable
 from torchvision import models
 import torch.nn.functional as F
 from torch.optim import lr_scheduler
+import gc
 
 
 ######################################################################################
@@ -150,6 +151,8 @@ class GaussianNoiseLayer(nn.Module):
         super(GaussianNoiseLayer, self).__init__()
 
     def forward(self, x):
+        torch.cuda.empty_cache()
+        gc.collect()
         if self.training == False:
             return x
         noise = Variable((torch.randn(x.size()).cuda(x.data.get_device()) - 0.5) / 10.0)
@@ -179,6 +182,8 @@ class _InceptionBlock(nn.Module):
         )
 
     def forward(self, x):
+        torch.cuda.empty_cache()
+        gc.collect()
         result = []
         for i in range(self.width):
             layer = getattr(self, 'layer'+str(i))
@@ -208,6 +213,8 @@ class _EncoderBlock(nn.Module):
         self.model = nn.Sequential(*model)
 
     def forward(self, x):
+        torch.cuda.empty_cache()
+        gc.collect()
         return self.model(x)
 
 
@@ -225,6 +232,8 @@ class _DownBlock(nn.Module):
         self.model = nn.Sequential(*model)
 
     def forward(self, x):
+        torch.cuda.empty_cache()
+        gc.collect()
         return self.model(x)
 
 
@@ -244,6 +253,8 @@ class _ShuffleUpBlock(nn.Module):
         self.model = nn.Sequential(*model)
 
     def forward(self, x):
+        torch.cuda.empty_cache()
+        gc.collect()
         return self.model(x)
 
 
@@ -264,6 +275,8 @@ class _DecoderUpBlock(nn.Module):
         self.model = nn.Sequential(*model)
 
     def forward(self, x):
+        torch.cuda.empty_cache()
+        gc.collect()
         return self.model(x)
 
 
@@ -280,6 +293,8 @@ class _OutputBlock(nn.Module):
         self.model = nn.Sequential(*model)
 
     def forward(self, x):
+        torch.cuda.empty_cache()
+        gc.collect()
         return self.model(x)
 
 
@@ -346,6 +361,8 @@ class _ResGenerator(nn.Module):
         self.decoder = nn.Sequential(*decoder)
 
     def forward(self, input):
+        torch.cuda.empty_cache()
+        gc.collect()
         feature = self.encoder(input)
         result = [feature]
         output = self.decoder(feature)
@@ -407,6 +424,8 @@ class _PreUNet16(nn.Module):
         self.upsample = nn.Upsample(scale_factor=2, mode='bilinear', align_corners=True)
 
     def forward(self, input):
+        torch.cuda.empty_cache()
+        gc.collect()
         conv1 = self.pool(self.conv1(input))
         conv2 = self.pool(self.conv2(conv1))
         conv3 = self.pool(self.conv3(conv2))
@@ -503,6 +522,8 @@ class _UNetGenerator(nn.Module):
         self.upsample = nn.Upsample(scale_factor=2, mode='nearest')
 
     def forward(self, input):
+        torch.cuda.empty_cache()
+        gc.collect()
         conv1 = self.pool(self.conv1(input))
         conv2 = self.pool(self.conv2.forward(conv1))
         conv3 = self.pool(self.conv3.forward(conv2))
@@ -549,6 +570,8 @@ class _MultiscaleDiscriminator(nn.Module):
         self.downsample = nn.AvgPool2d(kernel_size=3, stride=2, padding=[1, 1], count_include_pad=False)
 
     def forward(self, input):
+        torch.cuda.empty_cache()
+        gc.collect()
         result = []
         for i in range(self.num_D):
             netD = getattr(self, 'scale'+str(i))
@@ -600,6 +623,8 @@ class _Discriminator(nn.Module):
         self.model = nn.Sequential(*model)
 
     def forward(self, input):
+        torch.cuda.empty_cache()
+        gc.collect()
         return self.model(input)
 
 
@@ -633,6 +658,8 @@ class _FeatureDiscriminator(nn.Module):
         self.model = nn.Sequential(*model)
 
     def forward(self, input):
+        torch.cuda.empty_cache()
+        gc.collect()
         result = []
         input = input.view(-1, 512 * 40 * 12)
         output = self.model(input)

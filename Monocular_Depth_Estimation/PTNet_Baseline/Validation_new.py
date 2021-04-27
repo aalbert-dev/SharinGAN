@@ -25,7 +25,7 @@ from Dataloaders.Kitti_dataset_util import KITTI
 
 class Solver():
     def __init__(self, exp):
-        self.root_dir = '/vulcanscratch/koutilya/projects/Domain_Adaptation/Common_Domain_Adaptation-Lighting/PTNet_Baseline'
+        self.root_dir = '/home/arjun/Desktop/ProgrammingAssignments/cv/final_pa/SharinGAN/Monocular_Depth_Estimation/PTNet_Baseline'
         
         # Seed
         self.seed = 1729

@@ -5,7 +5,7 @@ import torch.nn.functional as F
 import torch.nn.init as init
 import numpy as np
 import torchvision.models as models
-import all_networks
+import networks.all_networks
 
 class Flatten(nn.Module):
     def forward(self, input):

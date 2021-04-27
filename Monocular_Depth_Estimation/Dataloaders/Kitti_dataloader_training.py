@@ -9,10 +9,10 @@ import torch
 from PIL import Image
 from PIL import ImageOps
 from torch.utils import data
-from Kitti_dataset_util import KITTI
+from Dataloaders.Kitti_dataset_util import KITTI
 import random
 import cv2
-import transform
+import Dataloaders.transform
 from torchvision import transforms as tr
 import matplotlib.pyplot as plt
 
@@ -24,7 +24,7 @@ class DepthToTensor(object):
         return tensors
 
 class KittiDataset(data.Dataset):
-    def __init__(self, root='/vulcanscratch/koutilya/kitti', data_file='train.txt', phase='train',
+    def __init__(self, root='/home/arjun/Desktop/ProgrammingAssignments/cv/final_pa/SharinGAN/Monocular_Depth_Estimation/dataset_files/Kitti', data_file='train.txt', phase='train',
                  img_transform=None, joint_transform=None, depth_transform=None, depth_resize='bilinear'):
       
         self.root = root

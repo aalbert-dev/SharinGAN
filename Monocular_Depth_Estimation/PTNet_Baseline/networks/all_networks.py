@@ -69,7 +69,7 @@ def init_weights(net, init_type='normal', gain=0.02):
             if hasattr(m, 'bias') and m.bias is not None:
                 init.constant_(m.bias.data, 0.0)
         elif classname.find('BatchNorm2d') != -1:
-            init.uniform_(m.weight.data, 1.0, gain)
+            init.uniform_(m.weight.data, 0.02, gain)
             init.constant_(m.bias.data, 0.0)
 
     print('initialize network with %s' % init_type)
@@ -446,7 +446,6 @@ class _UNetGenerator(nn.Module):
     def __init__(self, input_nc, output_nc, ngf=64, layers=4, norm='batch', activation='PReLU', drop_rate=0, add_noise=False, gpu_ids=[],
                  weight=0.1):
         super(_UNetGenerator, self).__init__()
-
         self.gpu_ids = gpu_ids
         self.layers = layers
         self.weight = weight

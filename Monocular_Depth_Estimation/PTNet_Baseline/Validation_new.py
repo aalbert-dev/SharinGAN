@@ -25,25 +25,31 @@ from Dataloaders.Kitti_dataset_util import KITTI
 
 class Solver():
     def __init__(self, exp):
-        self.root_dir = '/home/arjun/Desktop/ProgrammingAssignments/cv/final_pa/SharinGAN/Monocular_Depth_Estimation/PTNet_Baseline'
+        self.root_dir = '/home/august/Desktop/SharinGAN/Monocular_Depth_Estimation/PTNet_Baseline'
         
         # Seed
         self.seed = 1729
         random.seed(self.seed)
         torch.manual_seed(self.seed)
         np.random.seed(self.seed)
-        torch.cuda.manual_seed_all(self.seed)
+        #torch.cuda.manual_seed_all(self.seed)
 
         # Initialize networks
+        # self.netT = all_networks.define_G(3, 1, 64, 4, 'batch',
+        #                                     'PReLU', 'UNet', 'kaiming', 0,
+        #                                     False, [0], 0.1)
         self.netT = all_networks.define_G(3, 1, 64, 4, 'batch',
                                             'PReLU', 'UNet', 'kaiming', 0,
-                                            False, [0], 0.1)
-        self.netT.cuda()
+                                            False, [], 0.1)
+        # self.netT.cuda()
+        self.netT
 
         # Initialize Loss
         self.netT_loss_fn = nn.L1Loss()
 
-        self.netT_loss_fn = self.netT_loss_fn.cuda()
+        # self.netT_loss_fn = self.netT_loss_fn.cuda()
+        self.netT_loss_fn = self.netT_loss_fn
+
 
         # Training Configuration details
         self.batch_size = 16
@@ -143,7 +149,8 @@ class Solver():
         with torch.no_grad():
             for i,(data, depth_filenames) in tqdm(enumerate(self.real_val_dataloader)): 
                 self.real_val_image = data['left_img']#, data['depth'] # self.real_depth is a numpy array 
-                self.real_val_image = Variable(self.real_val_image.cuda())
+                # self.real_val_image = Variable(self.real_val_image.cuda())
+                self.real_val_image = Variable(self.real_val_image)
 
                 depth = self.netT(self.real_val_image)
                 depth = depth[-1]

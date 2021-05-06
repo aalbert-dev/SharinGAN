@@ -50,7 +50,7 @@ class to_tensor():
         return depth_tensor/8000.0
 
 class VKitti(Dataset):
-    def __init__(self, root_dir='/home/arjun/Desktop/ProgrammingAssignments/cv/final_pa/SharinGAN/Monocular_Depth_Estimation/dataset_files/VKitti', train=True, depth_resize='bicubic'):
+    def __init__(self, root_dir='/home/august/Desktop/SharinGAN/Monocular_Depth_Estimation/dataset_files/VKitti/', train=True, depth_resize='bicubic'):
         self.root_dir = root_dir
         self.train = train
         self.paired_transform = Paired_transform()

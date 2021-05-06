@@ -27,26 +27,30 @@ class Solver():
         random.seed(self.seed)
         torch.manual_seed(self.seed)
         np.random.seed(self.seed)
-        torch.cuda.manual_seed_all(self.seed)
+        # torch.cuda.manual_seed_all(self.seed)
 
         # Initialize networks
+        # self.netT = all_networks.define_G(3, 1, 64, 4, 'batch',
+        #                                     'PReLU', 'UNet', 'kaiming', 0,
+        #                                     False, [0], 0.1)
         self.netT = all_networks.define_G(3, 1, 64, 4, 'batch',
                                             'PReLU', 'UNet', 'kaiming', 0,
-                                            False, [0], 0.1)
-        self.netT.cuda()
+                                            False, [], 0.1)
+        # self.netT.cuda()
 
         # Initialize Loss
         self.netT_loss_fn = nn.L1Loss()
 
-        self.netT_loss_fn = self.netT_loss_fn.cuda()
+        # self.netT_loss_fn = self.netT_loss_fn.cuda()
+        self.netT_loss_fn = self.netT_loss_fn
 
         # Initialize Optimizers
         self.netT_optimizer = Optim.Adam(self.netT.parameters(), lr=1e-4, betas=(0.95,0.999))
 
         # Training Configuration details
-        self.batch_size = 16
+        self.batch_size = 3
         self.iteration = None
-        self.total_iterations = 200000
+        self.total_iterations = 1000
         self.START_ITER = 0
         self.kr = 1
         self.kd = 1 
@@ -77,8 +81,12 @@ class Solver():
         saved_models = glob.glob(os.path.join(self.root_dir, 'saved_models', 'PTNet_baseline-*_bicubic.pth.tar' ))
         if len(saved_models)>0:
             model_state = torch.load(saved_models[0])
+            state_dict = model_state['netT_state_dict']
+            new_state_dict = {}
+            for key in state_dict.keys():
+                new_state_dict[key.replace('module.', '')] = state_dict[key]
+            model_state['netT_state_dict'] = new_state_dict
             self.netT.load_state_dict(model_state['netT_state_dict'])
-
             self.netT_optimizer.load_state_dict(model_state['netT_optimizer'])
             self.START_ITER = model_state['iteration']+1
             return True
@@ -97,10 +105,11 @@ class Solver():
         
     def get_syn_data(self):
         self.syn_image, self.syn_label = next(self.syn_iter)
-        self.syn_image, self.syn_label = Variable(self.syn_image.cuda()), Variable(self.syn_label.cuda())
+        #self.syn_image, self.syn_label = Variable(self.syn_image.cuda()), Variable(self.syn_label.cuda())
+        self.syn_image, self.syn_label = Variable(self.syn_image), Variable(self.syn_label)
         
     def update_netT(self):
-
+        
         depth = self.netT(self.syn_image)
         self.netT_loss = self.netT_loss_fn(depth[-1], self.syn_label) 
         
@@ -111,8 +120,8 @@ class Solver():
 
     def train(self):
         self.load_prev_model()
+        self.Validation()
         for self.iteration in tqdm(range(self.START_ITER, self.total_iterations)): 
-            
             self.get_syn_data()
             self.update_netT()
 
@@ -121,11 +130,12 @@ class Solver():
             ###################################################            
             self.writer.add_scalar('Depth Estimation', self.netT_loss, self.iteration)
 
-            if self.iteration % 1000 == 999:
-                # Validation and saving models
-                self.save_model()
-                self.Validation()
-                
+            # if self.iteration % 1000 == 100:
+            #     # Validation and saving models
+            #     #self.save_model()
+            #     self.Validation()
+        self.Validation()
+        self.save_model()
         self.writer.close()
 
     def Validation(self):
@@ -134,12 +144,17 @@ class Solver():
         with torch.no_grad():
             l1_loss = 0.0
             for i,(syn_image, syn_label) in tqdm(enumerate(self.syn_val_dataloader)):
-                syn_image, syn_label = Variable(syn_image.cuda()), Variable(syn_label.cuda())
+                # syn_image, syn_label = Variable(syn_image.cuda()), Variable(syn_label.cuda())
+
+                syn_image, syn_label = Variable(syn_image), Variable(syn_label)
                 syn_depth = self.netT(syn_image)
                 loss = self.netT_loss_fn(syn_depth[-1], syn_label)
                 l1_loss += loss
+                if i == 100:
+                    break
 
-        self.writer.add_scalar('Validation/L1loss', l1_loss / (1+i) , self.iteration)
+        # self.writer.add_scalar('Validation/L1loss', l1_loss / (1+i) , self.iteration)
+        print('Validation/L1loss', l1_loss / (1+i) , self.iteration)
 
         self.netT.train()
         

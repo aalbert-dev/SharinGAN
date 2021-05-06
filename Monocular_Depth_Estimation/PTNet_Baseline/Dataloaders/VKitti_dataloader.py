@@ -17,7 +17,8 @@ import random
 import matplotlib.pyplot as plt
 from PIL import Image
 
-use_cuda = torch.cuda.is_available()
+#use_cuda = torch.cuda.is_available()
+use_cuda = False
 torch.manual_seed(1)
 if use_cuda:
     gpu = 0
@@ -44,7 +45,7 @@ class to_tensor():
         return depth_tensor/8000.0
 
 class VKitti(Dataset):
-    def __init__(self, root_dir='/vulcan/scratch/koutilya/Virtual_Kitti', train=True, resize_mode='bilinear'):
+    def __init__(self, root_dir='/home/august/Desktop/SharinGAN/Monocular_Depth_Estimation/dataset_files/morning/', train=True, resize_mode='bilinear'):
         self.root_dir = root_dir
         self.train = train
         self.paired_transform = Paired_transform()
@@ -70,7 +71,8 @@ class VKitti(Dataset):
         return len(self.filepaths)
     
     def __getitem__(self,idx):
-        filename = self.filepaths[idx]
+        root_location = '/home/august/Desktop/SharinGAN/Monocular_Depth_Estimation/PTNet_Baseline/Dataloaders'
+        filename = os.path.join(root_location, self.filepaths[idx])
         image = Image.open(filename).convert('RGB')
         depth = Image.open(filename.replace('rgb','depthgt'))
         image = image.resize([640,192], Image.BICUBIC)
